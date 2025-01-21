@@ -48,5 +48,11 @@ func (h *Handler) handleCreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, "create order success")
+	response := types.Response{
+		Success: true,
+		Message: "create order success",
+		Data:    nil,
+	}
+
+	utils.WriteJSON(w, http.StatusOK, response)
 }

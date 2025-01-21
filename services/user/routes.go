@@ -56,7 +56,13 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
+	response := types.Response{
+		Success: true,
+		Message: "login success",
+		Data:    map[string]string{"token": token},
+	}
+
+	utils.WriteJSON(w, http.StatusOK, response)
 }
 
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
@@ -97,5 +103,11 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, nil)
+	response := types.Response{
+		Success: true,
+		Message: "register success",
+		Data:    nil,
+	}
+
+	utils.WriteJSON(w, http.StatusCreated, response)
 }

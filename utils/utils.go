@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/anangfirmansyahp5/ecom/types"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -18,14 +19,21 @@ func ParseJSON(r *http.Request, payload any) error {
 	return json.NewDecoder(r.Body).Decode(payload)
 }
 
-func WriteJSON(w http.ResponseWriter, status int, v any) error {
+func WriteJSON(w http.ResponseWriter, status int, r types.Response) error {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(status)
-	return json.NewEncoder(w).Encode(v)
+
+	return json.NewEncoder(w).Encode(r)
 }
 
 func WriteError(w http.ResponseWriter, status int, err error) {
-	WriteJSON(w, status, map[string]string{"error": err.Error()})
+	response := types.Response{
+		Success: false,
+		Message: err.Error(),
+		Data:    nil,
+	}
+
+	WriteJSON(w, status, response)
 }
 
 func GetTokenFromRequest(r *http.Request) string {

@@ -25,8 +25,8 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/products", h.handleGetProducts).Methods(http.MethodGet)
 	router.HandleFunc("/products/{productID}", h.handleGetProduct).Methods(http.MethodGet)
 	router.HandleFunc("/products", auth.WithJWTAuth(h.handleCreateProduct, h.userStore)).Methods(http.MethodPost)
-	router.HandleFunc("/products/{productID}", h.handleUpdateProduct).Methods(http.MethodPut)
-	router.HandleFunc("/products/{productID}", h.handleDeleteProduct).Methods(http.MethodDelete)
+	router.HandleFunc("/products/{productID}", auth.WithJWTAuth(h.handleUpdateProduct, h.userStore)).Methods(http.MethodPut)
+	router.HandleFunc("/products/{productID}", auth.WithJWTAuth(h.handleDeleteProduct, h.userStore)).Methods(http.MethodDelete)
 }
 
 func (h *Handler) handleGetProducts(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +36,13 @@ func (h *Handler) handleGetProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, products)
+	response := types.Response{
+		Success: true,
+		Message: "get products success",
+		Data:    products,
+	}
+
+	utils.WriteJSON(w, http.StatusOK, response)
 }
 
 func (h *Handler) handleCreateProduct(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +70,13 @@ func (h *Handler) handleCreateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]string{"message": "product created"})
+	response := types.Response{
+		Success: true,
+		Message: "create product success",
+		Data:    nil,
+	}
+
+	utils.WriteJSON(w, http.StatusOK, response)
 }
 
 func (h *Handler) handleGetProduct(w http.ResponseWriter, r *http.Request) {
@@ -87,7 +99,13 @@ func (h *Handler) handleGetProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, product)
+	response := types.Response{
+		Success: true,
+		Message: "get product success",
+		Data:    product,
+	}
+
+	utils.WriteJSON(w, http.StatusOK, response)
 }
 
 func (h *Handler) handleUpdateProduct(w http.ResponseWriter, r *http.Request) {
@@ -135,7 +153,13 @@ func (h *Handler) handleUpdateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]string{"message": "product updated"})
+	response := types.Response{
+		Success: true,
+		Message: "product updated success",
+		Data:    nil,
+	}
+
+	utils.WriteJSON(w, http.StatusOK, response)
 }
 
 func (h *Handler) handleDeleteProduct(w http.ResponseWriter, r *http.Request) {
@@ -163,5 +187,11 @@ func (h *Handler) handleDeleteProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusNoContent, nil)
+	response := types.Response{
+		Data:    nil,
+		Message: "delete product success",
+		Success: true,
+	}
+
+	utils.WriteJSON(w, http.StatusNoContent, response)
 }
