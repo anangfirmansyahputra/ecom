@@ -32,10 +32,32 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 }
 
 func (h *Handler) handleCreateProduct(w http.ResponseWriter, r *http.Request) {
-	var payload types.ProductPayload
-	if err := utils.ParseJSON(r, &payload); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
+	err := r.ParseMultipartForm(10 << 20)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("failed to parse form: %v", err))
 		return
+	}
+
+	file, header, err := r.FormFile("image")
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("failed to get image: %v", err))
+		return
+	}
+
+	defer file.Close()
+
+	imagePath, err := utils.SaveUploadedFile(file, header)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	payload := types.ProductPayload{
+		Name:        r.FormValue("name"),
+		Description: r.FormValue("description"),
+		Image:       imagePath, // Path gambar yang disimpan
+		Price:       utils.ParseFloat(r.FormValue("price")),
+		Quantity:    utils.ParseInt(r.FormValue("quantity")),
 	}
 
 	if err := utils.Validate.Struct(payload); err != nil {
